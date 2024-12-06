@@ -1,0 +1,454 @@
+ * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+  body {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.5s ease-in-out;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: relative;
+    margin-top: 20px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 30px;
+    color: white;
+}
+
+.settings-menu {
+    position: absolute;
+    left: 10px;
+    top: 70px;
+    background: #ffffff;
+    color: grey;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    width: 150px;
+    z-index: 15;
+}
+
+.settings-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    color: grey;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.settings-menu button:hover {
+    background: #f0f0f0;
+    color: #000000;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.menu-btn {
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.header-icons {
+    display: flex;
+    gap: 10px;
+    padding-right: 400px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    grid-gap: 10px;
+    margin: 20px 0;
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.grid-cell {
+    width: 60px;
+    height: 60px;
+    background-color: #3a3a3c;
+    border: 2px solid #565758;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.key {
+    width: 40px;
+    height: 50px;
+    background-color: #818384;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.key:hover {
+    background-color: #565758;
+}
+
+.enter-key {
+    width: 60px;
+}
+
+.delete-key {
+    width: 60px;
+}
+
+.lang-button {
+    font-size: 16px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+.language-buttons {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 500px;
+}
+
+.lang-button.left {
+    background-color: #ff4d4d;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.lang-button.left:hover {
+    background-color: #e60000;
+}
+
+.lang-button.right {
+    background-color: #4d79ff;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.lang-button.right:hover {
+    background-color: #1a53ff;
+}
+
+.start-button {
+    display: inline-block;
+    padding: 20px 40px;
+    font-size: 1.5em;
+    color: #ffffff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+    width: 250px;
+    text-align: center;
+}
+
+.welcome-text h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.welcome-text p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+/* Animations */
+@keyframes zoom-in-out {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+.game-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 3em;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+    margin-bottom: 20px;
+    animation: fadeInTitle 1s ease-in-out;
+    padding-left: 200px;
+}
+
+/* Optional animation for the title */
+@keyframes fadeInTitle {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* General Game Container */
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+/* Header */
+.header-icons {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.settings-menu {
+    position: absolute;
+    left: 10px;
+    top: 70px;
+    background: #ffffff; /* White background for the menu */
+    color: grey; /* Default text color */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    display: none; /* Initially hidden */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    width: 150px;
+    z-index: 15;
+}
+
+.settings-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: none; /* No background by default */
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    color: grey; /* Text color remains grey */
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+}
+
+.settings-menu button:hover {
+    background: #66ccff;
+}
+/* User Section */
+.user-section, .retrieve-user-section {
+    background: rgba(255, 255, 255, 0.9); /* Changed background to white for better contrast */
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: black; /* Text is now black */
+}
+
+.user-section h2, .retrieve-user-section h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    color: #4CAF50; /* Subheader color changed to green for clarity */
+}
+
+.user-section form, .retrieve-user-section form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user-section input, .retrieve-user-section input {
+    width: 90%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black; /* Input text color is black */
+}
+
+.user-section button, .retrieve-user-section button {
+    background-color: #ffffff; /* Buttons are now white */
+    color: black; /* Button text is black */
+    border: 2px solid #4CAF50; /* Green border for visibility */
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.user-section button:hover, .retrieve-user-section button:hover {
+    background-color: #f9f9f9; /* Slight hover effect */
+    color: #4CAF50; /* Text changes to green on hover */
+}
+
+#saveMessage, #retrievedUser {
+    margin-top: 10px;
+    font-size: 14px;
+    color: black; /* Messages are now black */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .game-container {
+        padding: 10px;
+    }
+
+    .keyboard-row button {
+        font-size: 12px;
+    }
+
+    .user-section, .retrieve-user-section {
+        width: 100%;
+        margin: 10px auto;
+    }
+}
+
+/* Popup Button */
+.popup-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background-color: #ffffff; /* Button background is white */
+    color: black; /* Button text color is black */
+    padding: 10px 20px;
+    border: 2px solid #4CAF50; /* Green border */
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.popup-btn:hover {
+    background-color: #f9f9f9; /* Slight hover effect */
+    color: #4CAF50; /* Text changes to green on hover */
+}
+
+/* Popup Modal */
+.popup-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 400px;
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: black;
+}

@@ -1,0 +1,87 @@
+from flask import Flask, render_template, request, session, redirect, url_for
+from database import init_db, save_game
+import random
+import requests
+
+app = Flask(__name__)
+app.secret_key = "supersecretkey"
+init_db()  # Initialize the database when the app starts
+
+# API URLs for English and French words
+ENGLISH_WORDS_API = "https://api.example.com/english_words"
+FRENCH_WORDS_API = "https://api.example.com/french_words"
+
+# Function to fetch words from the API
+def fetch_words(api_url):
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        return response.json().get("words", [])
+    except requests.RequestException as e:
+        print(f"Error fetching words: {e}")
+        return []
+
+# Function to choose a random word based on the selected language
+def choose_word():
+    lang = session.get("lang", "en")
+    words = fetch_words(ENGLISH_WORDS_API) if lang == "en" else fetch_words(FRENCH_WORDS_API)
+    return random.choice(words) if words else "default"
+
+# Route to set the language
+@app.route("/set_language")
+def set_language():
+    lang = request.args.get("lang", "en")
+    session["lang"] = lang
+    return redirect(url_for("home"))
+
+# Homepage route
+@app.route("/")
+def home():
+    if "lang" not in session:
+        session["lang"] = "en"
+    return render_template("home.html")
+
+# Game route
+@app.route("/game", methods=["GET", "POST"])
+def game():
+    if "target" not in session:
+        session["target"] = choose_word()
+        session["attempts"] = 6
+        session["used_letters"] = {"correct": [], "misplaced": [], "wrong": []}
+
+    if request.method == "POST":
+        guess = request.form["guess"].strip().lower()
+        target_word = session["target"]
+        feedback = {"correct": [], "misplaced": [], "wrong": []}
+
+        if guess == target_word:
+            feedback["correct"] = list(guess)
+            message = "Congratulations! You've guessed the word!" if session.get("lang") == "en" else "Félicitations! Vous avez deviné le mot."
+            save_game(target_word, session["attempts"])
+            session.pop("target", None)
+        else:
+            session["attempts"] -= 1
+            for i, letter in enumerate(guess):
+                if letter == target_word[i]:
+                    feedback["correct"].append(letter)
+                elif letter in target_word:
+                    feedback["misplaced"].append(letter)
+                else:
+                    feedback["wrong"].append(letter)
+
+            session["used_letters"]["correct"] += feedback["correct"]
+            session["used_letters"]["misplaced"] += feedback["misplaced"]
+            session["used_letters"]["wrong"] += feedback["wrong"]
+
+            if session["attempts"] == 0:
+                message = f"Game Over! The word was: {target_word}" if session.get("lang") == "en" else f"Partie terminée ! Le mot était : {target_word}"
+                session.pop("target", None)
+            else:
+                message = f"Incorrect! Attempts left: {session['attempts']}" if session.get("lang") == "en" else f"Incorrect ! Essais restants : {session['attempts']}"
+
+        return render_template("index.html", message=message, feedback=feedback, used_letters=session["used_letters"])
+
+    return render_template("index.html", used_letters=session.get("used_letters", {}))
+
+if __name__ == "__main__":
+    app.run(debug=True)

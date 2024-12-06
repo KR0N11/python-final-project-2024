@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body style="background-image: url('/static/{{ 'easy-background.jpg' if mode == 'easy' else 'hard-background.jpg' }}');">
+    <div class="game-container">
+        <!-- Header -->
+        <header>
+            <div class="header-icons">
+                <button class="icon-btn" onclick="toggleSettingsMenu()">⚙️</button>
+                <div class="settings-menu" id="settingsMenu">
+                    <button onclick="setMode('easy')">Easy Mode</button>
+                    <button onclick="setMode('hard')">Hard Mode</button>
+                </div>
+            </div>
+            <h1 class="game-title">Wordle Game</h1>
+        </header>
+
+        <!-- Game Grid -->
+        <div class="grid-container">
+            {% for row in range(6) %}
+            <div class="grid-row">
+                {% for col in range(5) %}
+                <div class="grid-cell" id="cell-{{ row }}-{{ col }}"></div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- On-Screen Keyboard -->
+        <div class="keyboard">
+            <div class="keyboard-row">
+                <button class="key" data-key="Q" onclick="handleKeyClick('Q')">Q</button>
+                <button class="key" data-key="W" onclick="handleKeyClick('W')">W</button>
+                <button class="key" data-key="E" onclick="handleKeyClick('E')">E</button>
+                <button class="key" data-key="R" onclick="handleKeyClick('R')">R</button>
+                <button class="key" data-key="T" onclick="handleKeyClick('T')">T</button>
+                <button class="key" data-key="Y" onclick="handleKeyClick('Y')">Y</button>
+                <button class="key" data-key="U" onclick="handleKeyClick('U')">U</button>
+                <button class="key" data-key="I" onclick="handleKeyClick('I')">I</button>
+                <button class="key" data-key="O" onclick="handleKeyClick('O')">O</button>
+                <button class="key" data-key="P" onclick="handleKeyClick('P')">P</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" data-key="A" onclick="handleKeyClick('A')">A</button>
+                <button class="key" data-key="S" onclick="handleKeyClick('S')">S</button>
+                <button class="key" data-key="D" onclick="handleKeyClick('D')">D</button>
+                <button class="key" data-key="F" onclick="handleKeyClick('F')">F</button>
+                <button class="key" data-key="G" onclick="handleKeyClick('G')">G</button>
+                <button class="key" data-key="H" onclick="handleKeyClick('H')">H</button>
+                <button class="key" data-key="J" onclick="handleKeyClick('J')">J</button>
+                <button class="key" data-key="K" onclick="handleKeyClick('K')">K</button>
+                <button class="key" data-key="L" onclick="handleKeyClick('L')">L</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key enter-key" onclick="handleEnter()">ENTER</button>
+                <button class="key" data-key="Z" onclick="handleKeyClick('Z')">Z</button>
+                <button class="key" data-key="X" onclick="handleKeyClick('X')">X</button>
+                <button class="key" data-key="C" onclick="handleKeyClick('C')">C</button>
+                <button class="key" data-key="V" onclick="handleKeyClick('V')">V</button>
+                <button class="key" data-key="B" onclick="handleKeyClick('B')">B</button>
+                <button class="key" data-key="N" onclick="handleKeyClick('N')">N</button>
+                <button class="key" data-key="M" onclick="handleKeyClick('M')">M</button>
+                <button class="key delete-key" onclick="handleDelete()">⌫</button>
+            </div>
+        </div>
+
+        <!-- Popup Modal -->
+        <div id="popupModal" class="popup-modal">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closePopup()">&times;</span>
+                <h2>Save or Retrieve Your Game</h2>
+                <div class="save-game">
+                    <h3>Save Your Game</h3>
+                    <form id="addUserForm">
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required />
+                        <button type="submit">Save Game</button>
+                    </form>
+                    <p id="saveMessage"></p>
+                </div>
+                <div class="retrieve-game">
+                    <h3>Retrieve Saved Game</h3>
+                    <form id="getUserForm">
+                        <input type="text" id="getUsername" name="username" placeholder="Enter your username" required />
+                        <button type="submit">Retrieve Game</button>
+                    </form>
+                    <div id="retrievedUser"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popup Button -->
+        <button class="popup-btn" onclick="openPopup()">
+            💾 Save/Retrieve Game
+        </button>
+    </div>
+
+    <script>
+
+        function openPopup() {
+            document.getElementById("popupModal").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+        let currentRow = 0;
+        let currentCol = 0;
+        const maxCols = 5;
+        const maxRows = 6;
+
+        const targetWord = "{{ session['target'] }}".toUpperCase();
+
+        function handleKeyClick(letter) {
+            if (currentCol < maxCols && currentRow < maxRows) {
+                const cell = document.getElementById(`cell-${currentRow}-${currentCol}`);
+                cell.textContent = letter;
+                currentCol++;
+            }
+        }
+
+        function handleDelete() {
+            if (currentCol > 0) {
+                currentCol--;
+                const cell = document.getElementById(`cell-${currentRow}-${currentCol}`);
+                cell.textContent = "";
+            }
+        }
+
+        async function handleEnter() {
+            if (currentCol === maxCols) {
+                const guess = [];
+                for (let i = 0; i < maxCols; i++) {
+                    const cell = document.getElementById(`cell-${currentRow}-${i}`);
+                    guess.push(cell.textContent);
+                }
+
+                const response = await fetch("/game", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ guess: guess.join('') })
+                });
+                const data = await response.json();
+
+                if (data.result) {
+                    for (let i = 0; i < maxCols; i++) {
+                        const cell = document.getElementById(`cell-${currentRow}-${i}`);
+                        cell.style.backgroundColor = data.result[i];
+                    }
+                }
+
+                if (data.game_over) {
+                    alert(`Game Over! The word was: ${data.target}`);
+                } else {
+                    currentRow++;
+                    currentCol = 0;
+                }
+            }
+        }
+
+        function toggleSettingsMenu() {
+            const menu = document.getElementById("settingsMenu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        }
+
+        function setMode(mode) {
+            const menu = document.getElementById("settingsMenu");
+
+            fetch(`/set_mode?mode=${mode}`)
+                .then(() => location.reload())
+                .catch(err => console.error("Error setting mode:", err));
+
+            menu.style.display = "none";
+        }
+
+        function openPopup() {
+            document.getElementById("popupModal").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        document.getElementById("addUserForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+
+            const response = await fetch("/add_user", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `username=${encodeURIComponent(username)}`,
+            });
+
+            const data = await response.json();
+            document.getElementById("saveMessage").textContent = data.message || data.error;
+        });
+
+   document.getElementById("getUserForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("getUsername").value;
+
+    try {
+        const response = await fetch(`/get_user/${encodeURIComponent(username)}`);
+        const data = await response.json();
+
+        const retrievedUserDiv = document.getElementById("retrievedUser");
+        retrievedUserDiv.innerHTML = ""; // Clear previous results
+
+        if (data.error) {
+            retrievedUserDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+        } else {
+            let gameDetails = `
+                <p><strong>Username:</strong> ${data.username}</p>
+                <p><strong>Successful Words:</strong> ${data.successful_words}</p>
+                <p><strong>Games Played:</strong></p>
+                <ul>
+            `;
+            if (data.games.length > 0) {
+                data.games.forEach((game, index) => {
+                    gameDetails += `
+                        <li>
+                            <strong>Game ${index + 1}:</strong>
+                            Word: ${game.word}, Mode: ${game.mode},
+                            Success: ${game.success ? "Yes" : "No"},
+                            Attempts Used: ${game.attempts_used}
+                        </li>
+                    `;
+                });
+                gameDetails += `</ul>`;
+            } else {
+                gameDetails += `<li>No games played yet.</li></ul>`;
+            }
+
+            retrievedUserDiv.innerHTML = gameDetails;
+        }
+    } catch (error) {
+        console.error("Error retrieving user data:", error);
+        const retrievedUserDiv = document.getElementById("retrievedUser");
+        retrievedUserDiv.innerHTML = `<p style="color: red;">Error retrieving data. Please try again later.</p>`;
+    }
+});
+
+
+    </script>
+</body>
+</html>
